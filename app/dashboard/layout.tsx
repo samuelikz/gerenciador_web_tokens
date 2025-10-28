@@ -4,7 +4,7 @@ import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
 import { SidebarInset } from "@/components/ui/sidebar"
 import { ClientShell } from "./client-shell"
-import { RoleProvider } from "@/components/auth/role-context"
+import { RoleProvider } from "@/contexts/role-context"
 
 type Claims = { name?: string; email?: string; role?: "ADMIN" | "USER" }
 

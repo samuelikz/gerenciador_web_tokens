@@ -1,37 +1,29 @@
-import { NextResponse, NextRequest } from "next/server";
-import { cookies } from "next/headers";
+import { NextRequest, NextResponse } from 'next/server';
 
-export const dynamic = "force-dynamic"; export const revalidate = 0; export const runtime = "nodejs";
-const API = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3333";
-const AUTH_COOKIE = process.env.AUTH_COOKIE_NAME || "accessToken";
-
+interface ContextProps {
+  params: {
+    id: string; 
+  };
+}
 
 export async function PATCH(
   req: NextRequest, 
-  context: { params: { id: string } } 
+  context: ContextProps 
 ) {
-  const { id } = context.params;
-  
-  const token = (await cookies()).get(AUTH_COOKIE)?.value
-  
-  if (!token) return NextResponse.json({ success:false, error:{ message:"Não autenticado" } }, { status:401 });
+  const { id } = context.params; 
 
-  const body = await req.json().catch(()=>null);
-  const resp = await fetch(`${API}/users/${id}`, {
-    method: "PATCH",
-    headers: { Authorization: `Bearer ${token}`, "Content-Type":"application/json" },
-    body: JSON.stringify(body),
-  });
-  
-  let j: unknown = {}; 
-  try { 
-    j = await resp.json(); 
-  } catch {}
-  
-  const responseData = j as Record<string, unknown>;
-  
-  return NextResponse.json(
-    { success: resp.ok, data: responseData?.data ?? responseData?.user ?? responseData }, 
-    { status: resp.status }
-  );
+  try {
+    const data = await req.json();
+    console.log(`Atualizando utilizador ${id} com dados:`, data);
+    
+    return NextResponse.json({ success: true, data: { userId: id, ...data } }, { status: 200 });
+  } catch (error) {
+    return NextResponse.json({ 
+        success: false, 
+        error: { 
+            message: "Falha ao processar a requisição." 
+        } 
+    }, { status: 500 });
+  }
 }
+

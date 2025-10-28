@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -9,17 +8,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
-
-type LoginResp = { success?: boolean; message?: string };
-
-function getErrorMessage(err: unknown, fallback = "Falha no login"): string {
-  if (err instanceof Error) return err.message;
-  if (typeof err === "string") return err;
-  return fallback;
-}
+import { useAuth } from "@/contexts/auth-context";
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
-  const router = useRouter();
+  const { login } = useAuth();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [loading, setLoading] = React.useState(false);
@@ -28,24 +20,10 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const body = (await res.json().catch(() => ({}))) as LoginResp;
-      if (!res.ok || body?.success === false) {
-        const msg = body?.message || "Falha no login";
-        toast.error(msg);
-        return;
-      }
-
+      await login(email, password);
       toast.success("Login efetuado com sucesso!");
-      router.replace("/dashboard");
-      router.refresh();
-    } catch (err: unknown) {
-      toast.error(getErrorMessage(err));
+    } catch (err: any) {
+      toast.error(err.message || "Falha no login");
     } finally {
       setLoading(false);
     }
@@ -73,14 +51,11 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  aria-invalid={false}
                 />
               </div>
 
               <div className="grid gap-3">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Senha</Label>
-                </div>
+                <Label htmlFor="password">Senha</Label>
                 <Input
                   id="password"
                   type="password"
@@ -88,7 +63,6 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  aria-invalid={false}
                 />
               </div>
 
@@ -101,7 +75,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
           <div className="relative bg-muted">
             <Image
               src="/logo.png"
-              alt="Fill"
+              alt="Logo"
               fill
               priority
               className="object-fill"
