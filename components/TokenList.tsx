@@ -110,29 +110,23 @@ function fmtDate(d?: unknown) {
                       <TableCell className="font-medium">
                         {t.description || "—"}
                       </TableCell>
-                      {/* Dono */}
                       <TableCell className="hidden md:table-cell">
                         {t.ownerName || t.ownerEmail || "—"}
                       </TableCell>
-                      {/* E-mail do dono */}
                       <TableCell className="hidden xl:table-cell">
                         {t.ownerEmail || "—"}
                       </TableCell>
-                      {/* Criado em */}
                       <TableCell className="hidden md:table-cell">
                         {fmtDate(t.createdAt)}
                       </TableCell>
-                      {/* Expira em */}
                       <TableCell className="hidden md:table-cell">
                         {fmtDate(t.expiresAt)}
                       </TableCell>
-                      {/* Escopo */}
                       <TableCell className="hidden sm:table-cell">
                         <Badge variant="outline" className="px-2">
                           {t.scope || "—"}
                         </Badge>
                       </TableCell>
-                      {/* Status */}
                       <TableCell>
                         {ativo ? (
                           <Badge variant="outline" className="px-2">
@@ -144,7 +138,6 @@ function fmtDate(d?: unknown) {
                           </Badge>
                         )}
                       </TableCell>
-                      {/* Ações */}
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -185,7 +178,6 @@ function fmtDate(d?: unknown) {
                     colSpan={8}
                     className="h-24 text-center text-muted-foreground"
                   >
-                    {/* A mensagem de carregamento agora usa a prop 'loading' */}
                     {loading ? "Carregando…" : "Nada encontrado."}
                   </TableCell>
                 </TableRow>

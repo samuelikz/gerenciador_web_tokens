@@ -42,15 +42,12 @@ export default function EditProfileForm({ initialData, onSuccess }: {
     initialData: UserData | null;
     onSuccess: () => void;
 }) {
-    // 🛑 NOVO ESTADO: Alterna entre formulários
     const [mode, setMode] = React.useState<FormMode>('profile');
     
-    // 🛑 ESTADO DO PERFIL
     const [name, setName] = React.useState(initialData?.name || '');
     const [email, setEmail] = React.useState(initialData?.email || '');
     const [saving, setSaving] = React.useState(false);
 
-    // Efeito para atualizar os campos se os dados iniciais mudarem
     React.useEffect(() => {
         if (initialData) {
             setName(initialData.name || '');
@@ -59,9 +56,6 @@ export default function EditProfileForm({ initialData, onSuccess }: {
     }, [initialData]);
 
 
-    // ------------------------------------
-    // LÓGICA DE EDIÇÃO DE NOME (PATCH)
-    // ------------------------------------
     async function handleSaveProfile(e: React.FormEvent) {
         e.preventDefault();
 
@@ -71,11 +65,8 @@ export default function EditProfileForm({ initialData, onSuccess }: {
         try {
             setSaving(true);
 
-            // Apenas envia campos que foram alterados (Nome)
             const payload: { name: string; } = { name };
             
-            // 🛑 CHAMADA PATCH para a rota de edição do usuário
-            // Assumimos que a rota é /api/users/{id}
             const res = await fetch(`/api/users/${initialData.id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
@@ -90,7 +81,7 @@ export default function EditProfileForm({ initialData, onSuccess }: {
             }
 
             toast.success("Perfil atualizado com sucesso!");
-            onSuccess(); // Fecha o modal e recarrega os dados na página pai
+            onSuccess(); 
 
         } catch (err) {
             toast.error(getErrorMessage(err, "Erro ao salvar."));
@@ -136,7 +127,7 @@ export default function EditProfileForm({ initialData, onSuccess }: {
                             id="email" 
                             type="email" 
                             value={email} 
-                            disabled={true} // Email não pode ser alterado
+                            disabled={true} 
                             className="text-muted-foreground"
                         />
                     </div>

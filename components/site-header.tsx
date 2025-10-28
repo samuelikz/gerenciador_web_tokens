@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
-// --- TIPOS ---
 type Role = "ADMIN" | "USER";
 type UserData = { id: string | number; email?: string; role?: Role; name?: string; avatar?: string | null; };
 type MiniUser = { name?: string; email?: string; role?: string };
@@ -32,8 +31,7 @@ export function SiteHeader({ user: userProp, className, ...props }: SiteHeaderPr
     let mounted = true;
 
     (async () => {
-      // 🛑 LÓGICA DE PROPS SIMPLIFICADA
-      if (userProp && userProp.name) { // Se o nome vier da prop, usa e pula o fetch
+      if (userProp && userProp.name) { 
         setMe({
           id: "from-props",
           email: userProp.email ?? "",
@@ -48,7 +46,6 @@ export function SiteHeader({ user: userProp, className, ...props }: SiteHeaderPr
       try {
         setLoading(true);
         
-        // Chamada Direta ao Proxy Seguro (lê o cookie HTTP-Only)
         const res = await fetch(`/api/users/me/profile`, { 
           credentials: "include",
           cache: "no-store",
@@ -70,7 +67,7 @@ export function SiteHeader({ user: userProp, className, ...props }: SiteHeaderPr
           });
 
         } else {
-          setMe(null); // Falha de autenticação ou JSON malformado
+          setMe(null);
         }
       } catch (e) {
         if (!mounted) return;
@@ -83,11 +80,10 @@ export function SiteHeader({ user: userProp, className, ...props }: SiteHeaderPr
     return () => {
       mounted = false;
     };
-  }, [userProp]); // Mantido [userProp] por segurança se o dado puder mudar
+  }, [userProp]); 
 
   const u = me; 
   
-  // O valor do estado 'me' é setado APÓS a Promise ser resolvida.
   const displayName = u?.name ?? (u?.email ? u.email.split("@")[0] : "Usuário");
 
   return (

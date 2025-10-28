@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-// TIPOS DE UTILIDADE (Assumindo que estão definidos globalmente ou importados)
 type UpdateResp = { success?: boolean; message?: string } & Record<string, unknown>;
 
 function getErrorMessage(err: unknown, fallback = "Ocorreu um erro"): string {
@@ -41,7 +40,6 @@ export default function ChangePasswordForm({ userId, onSuccess }: {
         if (!userId) return toast.error("ID do usuário não encontrado.");
         if (newPassword.length < 6) return toast.error("A nova senha deve ter pelo menos 6 caracteres.");
         
-        // 🛑 VALIDAÇÃO PRINCIPAL: As senhas devem ser iguais
         if (newPassword !== confirmPassword) {
             return toast.error("As senhas não coincidem.");
         }

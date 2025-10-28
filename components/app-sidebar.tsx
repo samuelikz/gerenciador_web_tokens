@@ -79,7 +79,6 @@ export function AppSidebar({
 
     (async () => {
       try {
-        // Chamada Direta ao Proxy Seguro (lê o cookie HTTP-Only)
         const res = await fetch(`/api/users/me/profile`, { 
           credentials: "include",
           cache: "no-store",
@@ -89,7 +88,6 @@ export function AppSidebar({
         
         if (!mounted) return;
 
-        // Verifica se a resposta JSON tem sucesso: true
         if (json && "success" in json && json.success) {
           const d = json.data;
           
@@ -97,12 +95,11 @@ export function AppSidebar({
             id: d.id,
             email: d.email,
             role: d.role,
-            // Fallback para nome (usa o username do email se o 'name' for null/undefined)
             name: d.name ?? (d.email ? d.email.split("@")[0] : undefined),
             avatar: d.avatar ?? null,
           });
         } else {
-          setMe(null); // Falha de autenticação ou JSON malformado
+          setMe(null); 
         }
       } catch (e) {
         if (!mounted) return;
@@ -115,7 +112,7 @@ export function AppSidebar({
     return () => {
       mounted = false;
     };
-  }, []); // Executa apenas na montagem
+  }, []); 
 
   const isAdminDetected = me?.role === "ADMIN";
   const isAdmin =
@@ -126,12 +123,11 @@ export function AppSidebar({
       userProp?.name ??
       me?.name ??
       (me?.email ? me.email.split("@")[0] : undefined) ??
-      "Usuário Desconhecido", // Fallback final
+      "Usuário Desconhecido", 
     email: userProp?.email ?? me?.email ?? "—",
     avatar: userProp?.avatar ?? me?.avatar ?? "/avatars/shadcn.jpg",
   };
 
-  // 2. Filtra os itens de navegação: apenas mostra se adminOnly for falso OU se isAdmin for true
   const navMain = base.navMain.filter((i) => !i.adminOnly || isAdmin);
 
   return (
@@ -155,7 +151,6 @@ export function AppSidebar({
       </SidebarHeader>
 
       <SidebarContent>
-        {/* 🛑 SOLUÇÃO: Renderiza o conteúdo principal APENAS se não estiver carregando */}
         {loading ? (
             <div className="p-3 text-sm text-muted-foreground">Carregando menu...</div>
         ) : (
