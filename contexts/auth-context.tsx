@@ -1,48 +1,53 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { setCookie, getCookie, deleteCookie } from "cookies-next";
-import { useRouter } from "next/navigation";
+import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
-type User = {
-  id: string;
+interface User {
+  name: string;
   email: string;
-  name?: string;
-  role?: string;
-};
+  role: string;
+}
 
-type AuthContextType = {
-  user: User | null;
+interface AuthContextType {
   token: string | null;
-  loading: boolean;
+  user: User | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
-};
+  isAuthenticated: boolean;
+}
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Carrega token e perfil ao iniciar
+  // 🔹 Carrega dados salvos do localStorage
   useEffect(() => {
-    const t = getCookie("accessToken") as string | undefined;
-    if (t) {
-      setToken(t);
-      fetch("/api/auth/me", {
-        headers: { Authorization: `Bearer ${t}` },
-      })
-        .then((r) => (r.ok ? r.json() : null))
-        .then((data) => setUser(data?.user ?? null))
-        .finally(() => setLoading(false));
-    } else {
-      setLoading(false);
+    const stored = localStorage.getItem("auth");
+    if (stored) {
+      try {
+        const { token, user } = JSON.parse(stored);
+        setToken(token);
+        setUser(user);
+      } catch (err) {
+        console.error("Erro ao carregar auth:", err);
+      }
     }
+    setLoading(false);
   }, []);
 
+  // 🔹 Persiste automaticamente
+  useEffect(() => {
+    if (token && user) {
+      localStorage.setItem("auth", JSON.stringify({ token, user }));
+    } else {
+      localStorage.removeItem("auth");
+    }
+  }, [token, user]);
+
+  // 🔹 Função de login real
   async function login(email: string, password: string) {
     const res = await fetch("/api/auth/login", {
       method: "POST",
@@ -50,35 +55,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       body: JSON.stringify({ email, password }),
     });
 
-    const body = await res.json();
-    if (!res.ok || body?.success === false) {
-      throw new Error(body?.message || "Falha no login");
+    const data = await res.json();
+
+    if (!res.ok || !data?.success) {
+      throw new Error(data?.message || "Falha no login");
     }
 
-    const { token: newToken, user } = body;
+    // Supondo que a API retorne { token, user: { name, email, role } }
+    const { token, user } = data;
+
+    setToken(token);
     setUser(user);
-    setToken(newToken);
-    setCookie("accessToken", newToken, { path: "/", maxAge: 60 * 60 * 24 });
-    router.replace("/dashboard");
-    router.refresh();
+
+    localStorage.setItem("auth", JSON.stringify({ token, user }));
   }
 
   function logout() {
-    deleteCookie("accessToken");
-    setUser(null);
     setToken(null);
-    router.replace("/login");
+    setUser(null);
+    localStorage.removeItem("auth");
   }
 
+  const isAuthenticated = !!token && !!user;
+
+  if (loading) return null;
+
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, logout }}>
+    <AuthContext.Provider value={{ token, user, login, logout, isAuthenticated }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-export const useAuth = () => {
+export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
+  if (!ctx) throw new Error("useAuth deve ser usado dentro de um AuthProvider");
   return ctx;
-};
+}

@@ -9,19 +9,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import { useAuth } from "@/contexts/auth-context";
+import { useRouter } from "next/navigation";
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
   const { login } = useAuth();
+  const router = useRouter();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [loading, setLoading] = React.useState(false);
 
-  async function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
     try {
       await login(email, password);
       toast.success("Login efetuado com sucesso!");
+      router.replace("/dashboard");
     } catch (err: any) {
       toast.error(err.message || "Falha no login");
     } finally {
@@ -85,7 +88,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
         </CardContent>
       </Card>
 
-      <div className="text-balance text-center text-xs text-muted-foreground *:[a]:underline *:[a]:underline-offset-4 *:[a]:hover:text-primary">
+      <div className="text-balance text-center text-xs text-muted-foreground">
         <p className="text-center text-sm text-muted-foreground">
           Não conseguiu acessar sua conta?{" "}
           <a href="mailto:suportesiga@perpart.com.br" className="font-medium">
