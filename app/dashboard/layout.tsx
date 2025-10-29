@@ -1,4 +1,3 @@
-// app/dashboard/layout.tsx
 import { cookies } from "next/headers"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"

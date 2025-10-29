@@ -11,7 +11,10 @@ import Image from "next/image";
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 
-export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
+export function LoginForm({
+  className,
+  ...props
+}: React.ComponentProps<"div">) {
   const { login } = useAuth();
   const router = useRouter();
   const [email, setEmail] = React.useState("");
