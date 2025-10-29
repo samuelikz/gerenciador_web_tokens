@@ -7,15 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import ChangePasswordForm from "./edit-pass"; 
 import { IconLock, IconUser } from "@tabler/icons-react"; 
-
-// TIPOS DE UTILIDADE (Assumindo que estão definidos globalmente ou importados)
-type UserData = {
-    id: string | number;
-    email?: string;
-    role?: string;
-    name?: string;
-    avatar?: string | null;
-};
+import type { UserData } from "@/types/user"; // Importar a tipagem corrigida 
 type UpdateResp = { success?: boolean; message?: string } & Record<string, unknown>;
 
 function getErrorMessage(err: unknown, fallback = "Ocorreu um erro"): string {

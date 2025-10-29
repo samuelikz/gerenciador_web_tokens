@@ -1,94 +1,62 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { UserData } from "@/types/user";
 
-interface User {
-  name: string;
-  email: string;
-  role: string;
-}
-
-interface AuthContextType {
-  token: string | null;
-  user: User | null;
-  login: (email: string, password: string) => Promise<void>;
+type AuthContextType = {
+  user: UserData | null;
+  loading: boolean;
+  login: (token: string) => Promise<void>;
   logout: () => void;
-  isAuthenticated: boolean;
-}
+  reloadUser: () => Promise<void>;
+};
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(null);
-  const [user, setUser] = useState<User | null>(null);
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // 🔹 Carrega dados salvos do localStorage
-  useEffect(() => {
-    const stored = localStorage.getItem("auth");
-    if (stored) {
-      try {
-        const { token, user } = JSON.parse(stored);
-        setToken(token);
-        setUser(user);
-      } catch (err) {
-        console.error("Erro ao carregar auth:", err);
+  async function reloadUser() {
+    try {
+      const res = await fetch("/api/users/me/profile", { credentials: "include" });
+      const data = await res.json();
+
+      if (data.success) {
+        setUser(data.data);
+      } else {
+        setUser(null);
       }
+    } catch {
+      setUser(null);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
+  }
+
+  useEffect(() => {
+    reloadUser();
   }, []);
 
-  // 🔹 Persiste automaticamente
-  useEffect(() => {
-    if (token && user) {
-      localStorage.setItem("auth", JSON.stringify({ token, user }));
-    } else {
-      localStorage.removeItem("auth");
-    }
-  }, [token, user]);
-
-  // 🔹 Função de login real
-  async function login(email: string, password: string) {
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok || !data?.success) {
-      throw new Error(data?.message || "Falha no login");
-    }
-
-    // Supondo que a API retorne { token, user: { name, email, role } }
-    const { token, user } = data;
-
-    setToken(token);
-    setUser(user);
-
-    localStorage.setItem("auth", JSON.stringify({ token, user }));
+  async function login(token: string) {
+    localStorage.setItem("token", token);
+    await reloadUser();
   }
 
   function logout() {
-    setToken(null);
+    localStorage.removeItem("token");
     setUser(null);
-    localStorage.removeItem("auth");
   }
 
-  const isAuthenticated = !!token && !!user;
-
-  if (loading) return null;
-
   return (
-    <AuthContext.Provider value={{ token, user, login, logout, isAuthenticated }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, reloadUser }}>
       {children}
     </AuthContext.Provider>
   );
-}
+};
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth deve ser usado dentro de um AuthProvider");
+  if (!ctx) throw new Error("useAuth deve ser usado dentro de AuthProvider");
   return ctx;
 }

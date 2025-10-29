@@ -4,9 +4,9 @@ import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import type { UserData } from "@/types/user";
 
 type Role = "ADMIN" | "USER";
-type UserData = { id: string | number; email?: string; role?: Role; name?: string; avatar?: string | null; };
 type MiniUser = { name?: string; email?: string; role?: string };
 type MeResponse = | { success: true; data: UserData } | { success: false; message: string };
 

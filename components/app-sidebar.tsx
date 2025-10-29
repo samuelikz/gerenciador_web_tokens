@@ -26,6 +26,8 @@ import {
   IconFileText,
 } from "@tabler/icons-react";
 
+import type { UserData } from "@/types/user";
+
 // --- TIPOS DE DADOS ---
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   isAdmin?: boolean;
@@ -34,14 +36,6 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 
 type NavItem = { title: string; url: string; icon: Icon; adminOnly?: true };
 type DocItem = { name: string; url: string; icon: Icon };
-
-type UserData = {
-  id: string | number;
-  email?: string;
-  role?: string;
-  name?: string;
-  avatar?: string | null;
-};
 
 type MeResponse =
   | { success: true; data: UserData }
