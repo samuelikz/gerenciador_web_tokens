@@ -3,7 +3,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { UserData } from "@/types/user";
 
-// --- TIPOS ADICIONAIS ---
 type AuthApiLoginResponse = { token: string } & Record<string, unknown>;
 type LoginFn = (email: string, password: string) => Promise<void>;
 
@@ -23,9 +22,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState<string | null>(null);
 
-  // Assumindo que as funções getErrorMessage, readJson, etc. estão disponíveis ou importadas
-
-  // 🛑 1. DEFINIÇÃO DE RELOADUSER (Movida para o topo)
   async function reloadUser() {
     try {
       const storedToken = localStorage.getItem("token");
@@ -50,7 +46,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }
 
-  // 🛑 2. DEFINIÇÃO DE LOGOUT (Movida para o topo)
   function logout() {
     localStorage.removeItem("token");
     setUser(null);
@@ -58,9 +53,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
 
-  // 🛑 FUNÇÃO IMPLEMENTADA PARA RECEBER CREDENCIAIS
   async function apiLogin(email: string, password: string) {
-    // ... (lógica de apiLogin) ...
     const res = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -76,17 +69,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return data.token; 
   }
 
-  // 🛑 3. DEFINIÇÃO DE LOGIN
   async function login(email: string, password: string) {
-    const newToken = await apiLogin(email, password); // ⬅️ CHAMA A API
+    const newToken = await apiLogin(email, password); 
     
     localStorage.setItem("token", newToken); 
     
     setToken(newToken);
-    await reloadUser(); // ⬅️ AGORA FUNCIONA
+    await reloadUser(); 
   }
 
-  // 🛑 4. DEFINIÇÃO DO USE EFFECT
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
     if (storedToken) setToken(storedToken);
@@ -96,7 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, token, login, logout, reloadUser }} // ⬅️ AGORA FUNCIONA
+      value={{ user, loading, token, login, logout, reloadUser }}
     >
       {children}
     </AuthContext.Provider>
