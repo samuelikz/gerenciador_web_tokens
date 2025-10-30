@@ -54,6 +54,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     try {
       const res = await fetch("/api/users", { method: "GET", cache: "no-store" });
       const body = await readJson<ListResp>(res);
+      console.log(res)
 
       if (!res.ok || body?.success === false) throw new Error("Falha ao carregar usuários");
 
@@ -96,6 +97,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: user.id }),
       });
+      console.log(res)
       const body = await readJson<UpdateResp>(res);
       if (!res.ok || body?.success === false) throw new Error("Erro ao alterar status");
       toast.success(user.isActive ? "Usuário desativado" : "Usuário ativado");
@@ -112,6 +114,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ role }),
       });
+      console.log(res)
       const body = await readJson<UpdateResp>(res);
       if (!res.ok || body?.success === false) throw new Error("Erro ao alterar papel");
       toast.success(`Papel alterado para ${role}`);

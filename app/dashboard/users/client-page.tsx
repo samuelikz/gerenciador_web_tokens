@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import { useRole } from "@/contexts/role-context";
 import { useUsers } from "@/contexts/user-context";
 
-// --- CORREÇÃO: Importações divididas para ficheiros específicos (padrão shadcn/ui) ---
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -46,7 +45,6 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
-// --- Fim da Correção ---
 
 import {
   IconPlus,
@@ -55,7 +53,6 @@ import {
   IconDotsVertical,
 } from "@tabler/icons-react";
 
-// Definição do tipo para os dados do formulário
 type CreateUserForm = {
   name: string;
   email: string;
@@ -97,7 +94,6 @@ export default function UsersClientPage() {
         (u.email ?? "").toLowerCase().includes(q) ||
         (u.role ?? "").toLowerCase().includes(q)
     );
-    // Usando 'users' como dependência, pois 'filtered' só deve recalcular se os usuários mudarem
   }, [users, query]);
 
   async function handleCreate(e: React.FormEvent) {
@@ -111,30 +107,24 @@ export default function UsersClientPage() {
 
     try {
       setCreating(true);
-      // Passa o 'form' tipado
       await createUser(form);
       setOpenCreate(false);
-      // Resetar o formulário
       setForm({ name: "", email: "", role: "USER", password: "" });
     } finally {
       setCreating(false);
     }
   }
 
-  // Handler tipado para a busca
   const handleQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
   };
 
-  // Handler tipado para os inputs do formulário
   const handleFormInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setForm((f) => ({ ...f, [id]: value }));
   };
 
-  // Handler tipado para o Select do formulário
   const handleFormRoleChange = (v: string) => {
-    // Garantir que o valor é do tipo esperado
     if (v === "USER" || v === "ADMIN") {
       setForm((f) => ({ ...f, role: v as "USER" | "ADMIN" }));
     }
@@ -151,7 +141,6 @@ export default function UsersClientPage() {
               className="pl-8 w-64"
               placeholder="Buscar por nome, e-mail ou papel…"
               value={query}
-              // Corrigido para usar o handler tipado
               onChange={handleQueryChange}
             />
           </div>
@@ -183,7 +172,6 @@ export default function UsersClientPage() {
                     <Input
                       id="name"
                       value={form.name}
-                      // Corrigido para usar o handler tipado
                       onChange={handleFormInputChange}
                     />
                   </div>
@@ -193,7 +181,6 @@ export default function UsersClientPage() {
                       id="email"
                       type="email"
                       value={form.email}
-                      // Corrigido para usar o handler tipado
                       onChange={handleFormInputChange}
                     />
                   </div>
@@ -201,7 +188,6 @@ export default function UsersClientPage() {
                     <Label htmlFor="role">Papel</Label>
                     <Select
                       value={form.role}
-                      // Corrigido para usar o handler tipado
                       onValueChange={handleFormRoleChange}
                     >
                       <SelectTrigger id="role">
