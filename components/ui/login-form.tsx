@@ -28,8 +28,12 @@ export function LoginForm({
       await login(email, password);
       toast.success("Login efetuado com sucesso!");
       router.replace("/dashboard");
-    } catch (err: any) {
-      toast.error(err.message || "Falha no login");
+    } catch (err: unknown) {
+      let errorMessage = "Falha no login"
+      if (err instanceof Error) {
+        errorMessage = err.message
+      }
+      toast.error(errorMessage)
     } finally {
       setLoading(false);
     }

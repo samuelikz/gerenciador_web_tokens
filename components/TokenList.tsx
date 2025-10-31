@@ -19,6 +19,7 @@ import {
   TableRow,
 } from "./ui/table";
 import { IconDotsVertical } from "@tabler/icons-react"; // ou lucide-react se preferir
+import { fmtDate } from "@/lib/utils"; // 🛑 IMPORTADO DO ARQUIVO DE UTILIDADES
 
 type ApiToken = {
   id: string;
