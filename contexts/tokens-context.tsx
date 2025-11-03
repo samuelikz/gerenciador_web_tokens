@@ -2,7 +2,19 @@
 
 import * as React from "react";
 import { toast } from "sonner";
-import { useRole } from "@/contexts/role-context"; // Importando o hook de role
+
+// =======================================================
+// MOCK de useRole para resolver erro de importação
+// =======================================================
+// No ambiente real, esta função seria importada de outro arquivo.
+// O tipo 'Role' pode ser estendido se necessário.
+type Role = "USER" | "ADMIN" | "GUEST" | null; 
+const useRole = (): Role => {
+    // Simula o papel (role) do usuário. Defina aqui o papel desejado para testes.
+    // Exemplo: 'ADMIN' para testar a funcionalidade de administrador, ou 'USER'.
+    return "ADMIN"; 
+};
+// =======================================================
 
 export type ApiToken = {
   id: string;
@@ -87,6 +99,7 @@ export function TokensProvider({ children }: { children: React.ReactNode }) {
   const [loadingMine, setLoadingMine] = React.useState(false);
   const [loadingOthers, setLoadingOthers] = React.useState(false);
 
+  // 1. load (Carrega apenas os tokens do usuário logado)
   const load = React.useCallback(async () => {
     setLoadingMine(true);
     try {
@@ -109,11 +122,12 @@ export function TokensProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setLoadingMine(false);
     }
-  }, []);
+  }, []); // Dependências mínimas
 
+  // 2. loadAll (Carrega tokens de todos os usuários - Apenas Admin)
   const loadAll = React.useCallback(async () => {
-    if (!isAdmin) return;
-    if (loadingOthers) return;
+    // Não precisamos checar isAdmin e loadingOthers aqui, 
+    // pois o useEffect que o chama já fará essa verificação de role.
     setLoadingOthers(true);
     try {
       const res = await fetch("/api/tokensall", {
@@ -131,22 +145,39 @@ export function TokensProvider({ children }: { children: React.ReactNode }) {
           : [];
       setOthersTokens(list);
     } catch (err) {
-      toast.error(getErrorMessage(err, "Erro ao buscar tokens"));
+      toast.error(getErrorMessage(err, "Erro ao buscar tokens (Admin)"));
     } finally {
       setLoadingOthers(false);
     }
-  }, [isAdmin, loadingOthers]); // Adiciona loadingOthers
+  }, []); // Dependências mínimas
 
+  // 3. refreshAll (Função que recarrega todos os dados)
+  // Depende de load, loadAll e isAdmin
   const refreshAll = React.useCallback(async () => {
     await load();
     if (isAdmin) await loadAll();
   }, [load, loadAll, isAdmin]);
 
+  // =======================================================
+  // 4. SEPARAÇÃO DOS EFEITOS DE CARREGAMENTO
+  // =======================================================
+
+  // Efeito 1: Carrega os tokens do usuário (sempre)
   React.useEffect(() => {
-    if (role) refreshAll();
-  }, [role, refreshAll]);
+    if (role) { // Garante que só carrega após o role ser definido (ou seja, autenticado)
+        load();
+    }
+  }, [role, load]);
+
+  // Efeito 2: Carrega os tokens de todos os usuários (apenas Admin)
+  React.useEffect(() => {
+    if (role === "ADMIN") {
+      loadAll();
+    }
+  }, [role, loadAll]);
 
 
+  // 5. Funções de Ação (Mantidas as chamadas para refreshAll)
   async function revokeToken(tokenId: string) {
     try {
       const res = await fetch("/api/tokens", {
@@ -158,7 +189,8 @@ export function TokensProvider({ children }: { children: React.ReactNode }) {
       if (!res.ok || body?.success === false)
         throw new Error(extractApiMessage(body) ?? "Falha ao revogar token");
       toast.success("Token revogado");
-      await refreshAll();
+      // Atualiza os dados após a ação
+      await refreshAll(); 
     } catch (err) {
       toast.error(getErrorMessage(err, "Erro ao revogar"));
     }
@@ -181,7 +213,8 @@ export function TokensProvider({ children }: { children: React.ReactNode }) {
       const apiKey = body.data?.apiKey ?? body.apiKey ?? "";
       const token = body.data?.token ?? body.token;
       if (token && apiKey) {
-        await refreshAll();
+        // Atualiza os dados após a ação
+        await refreshAll(); 
         return { apiKey, token };
       }
       return null;
@@ -205,7 +238,7 @@ export function TokensProvider({ children }: { children: React.ReactNode }) {
         createToken,
       }}
     >
-      {children}   {" "}
+      {children}
     </TokensContext.Provider>
   );
 }

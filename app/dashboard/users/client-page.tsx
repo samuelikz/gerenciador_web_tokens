@@ -205,7 +205,6 @@ export default function UsersClientPage() {
                       id="password"
                       type="password"
                       value={form.password}
-                      // Corrigido para usar o handler tipado
                       onChange={handleFormInputChange}
                       placeholder="Mínimo 6 caracteres"
                     />
@@ -246,7 +245,6 @@ export default function UsersClientPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {/* Usando a variável 'filtered' para a lista */}
                 {filtered.length ? (
                   filtered.map((u) => (
                     <TableRow key={u.id}>
