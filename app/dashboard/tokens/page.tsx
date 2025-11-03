@@ -101,7 +101,6 @@ export default function TokensPage() {
 
   return (
     <div className="flex flex-col gap-6 px-4 lg:px-6">
-      {/* header e busca */}
       <div className="flex flex-wrap items-center gap-2">
         <h2 className="text-xl font-semibold">Tokens de Acesso</h2>
         <div className="ml-auto flex items-center gap-2">

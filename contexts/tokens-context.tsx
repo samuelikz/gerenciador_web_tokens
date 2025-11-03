@@ -4,10 +4,6 @@ import * as React from "react";
 import { toast } from "sonner";
 import { useRole } from "@/contexts/role-context"; // Importando o hook de role
 
-// Tipos (ApiToken, ListResp, CreateResp) devem estar definidos aqui ou importados
-// ----------------------------
-// Tipos (Colapsados para brevidade)
-// ----------------------------
 export type ApiToken = {
   id: string;
   userId: string;
@@ -39,12 +35,6 @@ type CreateResp = {
   apiKey?: string;
 } & ApiErrorShape;
 
-// ----------------------------
-// Helpers (Colapsados para brevidade)
-// ----------------------------
-const isAtivo = (t: ApiToken) => !!(t.isActive && !t.revokedAt);
-const toMs = (d?: string | null) => (d ? new Date(d).getTime() : 0);
-
 function getErrorMessage(err: unknown, fallback = "Ocorreu um erro"): string {
   if (err instanceof Error) return err.message;
   if (typeof err === "string") return err;
@@ -68,9 +58,6 @@ function extractApiMessage(body: unknown): string | null {
   return null;
 }
 
-// ----------------------------
-// Contexto principal
-// ----------------------------
 type TokensContextType = {
   myTokens: ApiToken[];
   othersTokens: ApiToken[];
@@ -114,8 +101,8 @@ export function TokensProvider({ children }: { children: React.ReactNode }) {
       const list: ApiToken[] = Array.isArray(body?.data)
         ? body.data!
         : Array.isArray(body?.items)
-        ? body.items!
-        : [];
+          ? body.items!
+          : [];
       setMyTokens(list);
     } catch (err) {
       toast.error(getErrorMessage(err, "Erro ao buscar tokens"));
@@ -126,11 +113,10 @@ export function TokensProvider({ children }: { children: React.ReactNode }) {
 
   const loadAll = React.useCallback(async () => {
     if (!isAdmin) return;
-    // Evita chamadas duplicadas
     if (loadingOthers) return;
     setLoadingOthers(true);
     try {
-      const res = await fetch("/api/tokensall/", {
+      const res = await fetch("/api/tokensall", {
         method: "GET",
         cache: "no-store",
         credentials: "include",
@@ -141,8 +127,8 @@ export function TokensProvider({ children }: { children: React.ReactNode }) {
       const list: ApiToken[] = Array.isArray(body?.data)
         ? body!.data!
         : Array.isArray(body?.items)
-        ? body!.items!
-        : [];
+          ? body!.items!
+          : [];
       setOthersTokens(list);
     } catch (err) {
       toast.error(getErrorMessage(err, "Erro ao buscar tokens"));
@@ -156,11 +142,10 @@ export function TokensProvider({ children }: { children: React.ReactNode }) {
     if (isAdmin) await loadAll();
   }, [load, loadAll, isAdmin]);
 
-  // 🛑 ADIÇÃO DO USEEFFECT PARA CARREGAMENTO INICIAL
   React.useEffect(() => {
-    // Chama a função de recarregar tudo assim que o provider for montado
-    refreshAll();
-  }, [refreshAll]); // Depende da função de recarregar
+    if (role) refreshAll();
+  }, [role, refreshAll]);
+
 
   async function revokeToken(tokenId: string) {
     try {
@@ -220,7 +205,7 @@ export function TokensProvider({ children }: { children: React.ReactNode }) {
         createToken,
       }}
     >
-            {children}   {" "}
+      {children}   {" "}
     </TokensContext.Provider>
   );
 }
