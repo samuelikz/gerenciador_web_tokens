@@ -6,9 +6,24 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 
-export function fmtDate(d?: unknown) {
-  if (!d) return "—";
-  const dt = new Date(d as any);
+// 🛑 CORREÇÃO (Exemplo para fmtDate):
+export function fmtDate(d: unknown): string { // Adicione o tipo de retorno
+  if (d == null) return "—";
+
+  let dt: Date;
+
+  // 🛑 AQUI ESTÁ A VERIFICAÇÃO (Type Guard):
+  // Nós só chamamos new Date() se o tipo for um destes:
+  if (typeof d === "string" || typeof d === "number" || d instanceof Date) {
+    dt = new Date(d); // Agora é seguro!
+  } else {
+    return "—"; // Retorna se o tipo for inválido
+  }
+
   if (Number.isNaN(dt.getTime())) return "—";
-  return new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium" }).format(dt);
+  try {
+    return new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium" }).format(dt);
+  } catch {
+    return "—";
+  }
 }
