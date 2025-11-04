@@ -82,7 +82,6 @@ export default function ChangePasswordForm({ userId, onSuccess }: {
                     value={currentPassword} 
                     onChange={(e) => setcurrentPassword(e.target.value)} 
                     disabled={saving}
-                    placeholder="Mínimo 6 caracteres"
                 />
             </div>
             
@@ -94,6 +93,7 @@ export default function ChangePasswordForm({ userId, onSuccess }: {
                     value={newPassword} 
                     onChange={(e) => setNewPassword(e.target.value)} 
                     disabled={saving}
+                    placeholder="Mínimo 6 caracteres"
                 />
             </div>
             

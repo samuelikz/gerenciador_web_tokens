@@ -42,9 +42,9 @@ export default function PerfilPage() {
       <Card className="w-full max-w-lg">
         <CardHeader>
           <div className="flex items-center justify-between">
+
             <div className="flex items-center gap-4">
               <Avatar className="h-16 w-16">
-                <User />
                 <AvatarFallback>{initials}</AvatarFallback>
               </Avatar>
               <div>
@@ -84,12 +84,8 @@ export default function PerfilPage() {
 
           <div className="flex items-center gap-3">
             <IconBriefcase className="size-5 text-primary" />
-            <span className="font-medium">Papel (Role):</span>
+            <span className="font-medium">Papel:</span>
             <span>{user?.role || "USER"}</span>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <IconCalendar className="size-5 text-primary" />
           </div>
         </CardContent>
       </Card>

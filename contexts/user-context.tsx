@@ -54,7 +54,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     try {
       const res = await fetch("/api/users", { method: "GET", cache: "no-store" });
       const body = await readJson<ListResp>(res);
-      console.log(res)
 
       if (!res.ok || body?.success === false) throw new Error("Falha ao carregar usuários");
 

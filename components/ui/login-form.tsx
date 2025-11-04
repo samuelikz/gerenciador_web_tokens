@@ -78,7 +78,7 @@ export function LoginForm({
               </div>
 
               <Button type="submit" className="mt-3 w-full" disabled={loading}>
-                {loading ? "Entrando..." : "Entrar"}
+                {loading ? "Aguarde..." : "Entrar"}
               </Button>
             </div>
           </form>
