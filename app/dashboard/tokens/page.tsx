@@ -55,7 +55,17 @@ export default function TokensPage() {
 
   const [openResult, setOpenResult] = React.useState(false);
   const [apiKey, setApiKey] = React.useState("");
-  const [createdPayload, setCreatedPayload] = React.useState<any>(null);
+
+  // Define a structure for the token result payload based on its usage
+  type CreatedTokenPayload = {
+    apiKey: string;
+    token: {
+      id: string;
+    };
+  };
+  // Corrige o erro de "any"
+  const [createdPayload, setCreatedPayload] =
+    React.useState<CreatedTokenPayload | null>(null);
 
   const todayStr = new Date().toISOString().slice(0, 10);
 
@@ -74,7 +84,7 @@ export default function TokensPage() {
     const result = await createToken(payload);
     if (result) {
       setApiKey(result.apiKey);
-      setCreatedPayload(result);
+      setCreatedPayload(result as CreatedTokenPayload); // Garante a tipagem aqui
       setOpenCreate(false);
       setOpenResult(true);
     }
@@ -261,3 +271,4 @@ export default function TokensPage() {
     </div>
   );
 }
+

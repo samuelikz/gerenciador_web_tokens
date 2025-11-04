@@ -69,7 +69,7 @@ export function SiteHeader({ user: userProp, className, ...props }: SiteHeaderPr
         } else {
           setMe(null);
         }
-      } catch (_e) {
+      } catch (e) {
         if (!mounted) return;
         setMe(null);
       } finally {

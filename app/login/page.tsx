@@ -4,9 +4,7 @@ import { LoginForm } from "@/components/ui/login-form";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: 'Meu Dashboard', 
-  // O resultado final na guia será: "Meu Dashboard | NomeDoSeuApp"
-  // (graças ao 'template' que definimos no layout.tsx)
+  title: 'API siga', 
 }
 
 export default async function LoginPage() {

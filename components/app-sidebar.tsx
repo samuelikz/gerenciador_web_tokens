@@ -95,7 +95,7 @@ export function AppSidebar({
         } else {
           setMe(null); 
         }
-      } catch (_e) {
+      } catch (e) {
         if (!mounted) return;
         setMe(null);
       } finally {

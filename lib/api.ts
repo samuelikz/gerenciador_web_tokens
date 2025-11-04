@@ -17,7 +17,7 @@ export async function apiFetch(path: string, init: RequestInit = {}) {
 
   const res = await fetch(`${API_BASE}${path}`, { ...init, headers, cache: "no-store" });
 
-  let data: any = null;
+  let data: unknown = null;
   try { data = await res.json(); } catch { data = { raw: await res.text().catch(() => "") }; }
 
   return new Response(JSON.stringify(data), { status: res.status });

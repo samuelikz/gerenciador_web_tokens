@@ -8,7 +8,6 @@ export const runtime = "nodejs";
 const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL!;
 const COOKIE_NAME = process.env.AUTH_COOKIE_NAME || "accessToken"; // Reintroduzindo a constante para o cookie.
 
-// Tipo esperado da resposta da sua API de back-end
 type BackendPayload = {
   data?: {
     access_token?: string;
@@ -34,7 +33,6 @@ export async function POST(req: Request) {
   });
   const payload: BackendPayload = await res.json().catch(() => ({}));
 
-  // --- 1. Verificação de Erro na Resposta da API ---
   if (!res.ok) {
     const message =
       payload?.message ||
@@ -43,8 +41,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: false, message }, { status: res.status });
   }
 
-  // --- 2. Extração do Token (Movida para Cima!) ---
-  // Isso deve ser feito APÓS a verificação de !res.ok.
   const token: string | undefined =
     payload?.data?.access_token ??
     payload?.access_token ??
@@ -60,11 +56,8 @@ export async function POST(req: Request) {
     );
   }
 
-  // Se você deseja retornar o token no corpo para o AuthContext (localStorage):
   const response = NextResponse.json({ success: true, token: token });
 
-  // Se você também deseja definir um Cookie HTTP-Only:
-  
   (await cookies()).set({
     name: COOKIE_NAME, // Usando a constante definida
     value: token,
@@ -74,6 +67,5 @@ export async function POST(req: Request) {
     sameSite: "lax",
   });
 
-  // Retorna a resposta (agora que o cookie foi definido nela)
   return response;
 }

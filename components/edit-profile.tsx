@@ -36,8 +36,6 @@ function extractApiMessage(body: unknown): string | null {
   return null;
 }
 
-
-
 type FormMode = 'profile' | 'password';
 
 export default function EditProfileForm({
@@ -60,11 +58,6 @@ export default function EditProfileForm({
     }
   }, [initialData]);
 
-  // --- validação simples de e-mail ---
-  function isValidEmail(value: string) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-  }
-
   async function handleSaveProfile(e: React.FormEvent) {
     e.preventDefault();
 
@@ -75,7 +68,7 @@ export default function EditProfileForm({
     try {
         setSaving(true);
 
-        const payload = { name, email }; // 👈 inclui o e-mail
+        const payload = { name, email }; 
 
         const res = await fetch(`/api/users/me/profile`, {
             method: "PATCH",

@@ -1,17 +1,17 @@
 "use client";
 
 import * as React from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { IconMail, IconBriefcase, IconCalendar, IconEdit } from "@tabler/icons-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/auth-context";
 import EditProfileForm from "@/components/edit-profile";
-import { fmtDate } from "@/lib/utils";
+import { User } from "lucide-react";
 
 export default function PerfilPage() {
-  const { user, reloadUser, logout, loading } = useAuth();
+  const { user, reloadUser, loading } = useAuth();
   const [openEdit, setOpenEdit] = React.useState(false);
 
   const initials = React.useMemo(() => {
@@ -44,7 +44,7 @@ export default function PerfilPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Avatar className="h-16 w-16">
-                <AvatarImage src={user?.avatar || "/avatars/shadcn.jpg"} alt={user?.name || "Usuário"} />
+                <User />
                 <AvatarFallback>{initials}</AvatarFallback>
               </Avatar>
               <div>
@@ -90,8 +90,6 @@ export default function PerfilPage() {
 
           <div className="flex items-center gap-3">
             <IconCalendar className="size-5 text-primary" />
-            <span className="font-medium">Membro desde:</span>
-            <span>{fmtDate(user?.createdAt)}</span>
           </div>
         </CardContent>
       </Card>

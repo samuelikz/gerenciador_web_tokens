@@ -15,7 +15,7 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const { login, user } = useAuth();
+  const { login } = useAuth();
   const router = useRouter();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -26,27 +26,7 @@ export function LoginForm({
     setLoading(true);
     try {
       const loggedUser = await login(email, password);
-
-      // --- CORREÇÃO ---
-      // 1. Verifique o status 'active' APENAS no objeto 'loggedUser' retornado pelo login.
-      // 2. Verifique explicitamente se o status é 'false'.
-      const active = loggedUser?.isActive;
-      console.log("Usuário após login:", loggedUser);
-
-
-      if (active === false) { // Se for explicitamente false, o usuário está inativo
-        
-        toast.error("Usuário inativo. Entre em contato com o suporte.");
-        // Se a sua função login() loga o usuário ANTES de retornar, 
-        // você pode querer chamar logout() aqui para garantir que ele não fique logado.
-        return; // Para a execução e não redireciona
-      }
-
-      // Se isActive for 'true' ou 'undefined' (status não definido), o login continua.
-      // Se a regra de negócio for que 'undefined' deve bloquear, 
-      // você pode usar a sua lógica original: if (!isActive) { ... }
-      // Mas lembre-se de remover o '?? user?.active'.
-
+      console.log("Usuário após login:", loggedUser)
       toast.success("Login efetuado com sucesso!");
       router.replace("/dashboard");
     } catch (err: unknown) {
