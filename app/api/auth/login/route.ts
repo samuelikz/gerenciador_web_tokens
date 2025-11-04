@@ -32,7 +32,6 @@ export async function POST(req: Request) {
     body: JSON.stringify({ email, password }),
     cache: "no-store",
   });
-  console.log(res)
   const payload: BackendPayload = await res.json().catch(() => ({}));
 
   // --- 1. Verificação de Erro na Resposta da API ---

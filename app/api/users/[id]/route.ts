@@ -75,7 +75,6 @@ export async function PATCH(
   const targetUrl = `${API}/users/${userIdToEdit}`;
 
   try {
-    console.log(`Alterando nível de usuário ${userIdToEdit} para:`, body.role);
     const resp = await fetch(targetUrl, {
       method: "PATCH",
       headers: {

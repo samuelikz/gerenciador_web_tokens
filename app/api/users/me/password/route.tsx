@@ -33,7 +33,7 @@ export async function PATCH(req: NextRequest) {
     // 2. LÓGICA DE PROXY: Bate na rota 'me/password' da API externa
     const targetUrl = `${API}/users/me/password`; 
 
-    console.log(`🔄 Enviando PATCH para (Meu Perfil): ${targetUrl}`);
+    console.log(`Enviando PATCH para (Meu Perfil): ${targetUrl}`);
 
     try {
         const resp = await fetch(targetUrl, {
