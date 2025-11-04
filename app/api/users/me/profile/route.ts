@@ -13,85 +13,84 @@ type UserData = { user?: unknown; data?: unknown } & Record<string, unknown>;
 
 // --- Função Helper para obter o Token ---
 async function getAuthToken() {
-    const token = (await cookies()).get(AUTH_COOKIE)?.value;
-    return token
+  const token = (await cookies()).get(AUTH_COOKIE)?.value;
+  return token
 }
 
 // --- FUNÇÃO GET (Já existia) ---
 // Busca o perfil do usuário
 export async function GET() {
-  const token = await getAuthToken(); 
+  const token = await getAuthToken();
 
-  if (!token) {
-    return NextResponse.json(
-      { success: false, error: { message: "Não autenticado" } },
-      { status: 401 }
-    );
-  }
+  if (!token) {
+    return NextResponse.json(
+      { success: false, error: { message: "Não autenticado" } },
+      { status: 401 }
+    );
+  }
 
-  const resp = await fetch(`${API}/users/me/profile`, {
-    headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
-    cache: "no-store",
-  });
+  const resp = await fetch(`${API}/users/me/profile`, {
+    headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
+    cache: "no-store",
+  });
 
-  let body: unknown = {};
-  try {
-    body = await resp.json();
-  } catch {}
+  let body: unknown = {};
+  try {
+    body = await resp.json();
+  } catch { }
 
-  const bodyAsData = body as UserData;
-  const user = bodyAsData?.data ?? bodyAsData?.user ?? body;
+  const bodyAsData = body as UserData;
+  const user = bodyAsData?.data ?? bodyAsData?.user ?? body;
 
-  return NextResponse.json(
-    { success: resp.ok, data: user },
-    { status: resp.status }
-  );
+  return NextResponse.json(
+    { success: resp.ok, data: user },
+    { status: resp.status }
+  );
 }
 
 
 // --- NOVA FUNÇÃO PATCH ---
 // Atualiza o perfil do usuário
 export async function PATCH(request: NextRequest) {
-    const token = await getAuthToken();
+  const token = await getAuthToken();
 
-    if (!token) {
-        return NextResponse.json(
-            { success: false, error: { message: "Não autenticado" } },
-            { status: 401 }
-        );
-    }
-
-    let payload: unknown;
-    try {
-        // Lê o corpo da requisição (name, email, etc.)
-        payload = await request.json();
-    } catch (e) {
-        return NextResponse.json(
-            { success: false, error: { message: "Payload inválido" } },
-            { status: 400 }
-        );
-    }
-
-    // Faz o "proxy" da requisição PATCH para a API de back-end principal
-    const resp = await fetch(`${API}/users/me/profile`, {
-        method: "PATCH",
-        headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-            "Content-Type": "application/json",
-        },
-        cache: "no-store",
-        body: JSON.stringify(payload), // Envia o payload recebido
-    });
-
-    let body: unknown = {};
-    try {
-        body = await resp.json();
-    } catch {}
-
+  if (!token) {
     return NextResponse.json(
-        { success: resp.ok, data: body },
-        { status: resp.status }
+      { success: false, error: { message: "Não autenticado" } },
+      { status: 401 }
     );
+  }
+
+  let payload: unknown;
+  try {
+    // Lê o corpo da requisição (name, email, etc.)
+    payload = await request.json();
+  } catch (e) {
+    return NextResponse.json(
+      { success: false, error: { message: "Payload inválido" } },
+      { status: 400 }
+    );
+  }
+
+  const resp = await fetch(`${API}/users/me/profile`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    cache: "no-store",
+    body: JSON.stringify(payload), // Envia o payload recebido
+  });
+
+  let body: unknown = {};
+  try {
+    body = await resp.json();
+  } catch { }
+
+  return NextResponse.json(
+    { success: resp.ok, data: body },
+    { status: resp.status }
+  );
 }
 
