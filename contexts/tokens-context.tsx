@@ -1,7 +1,6 @@
-"use client";
-
 import * as React from "react";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/auth-context"; // adicione isso
 
 type Role = "USER" | "ADMIN" | "GUEST" | null; 
 const useRole = (): Role => {
@@ -85,6 +84,7 @@ const TokensContext = React.createContext<TokensContextType | undefined>(
 export function TokensProvider({ children }: { children: React.ReactNode }) {
   const role = useRole();
   const isAdmin = role === "ADMIN";
+  const { token, user } = useAuth(); // pega do contexto de autenticação
 
   const [myTokens, setMyTokens] = React.useState<ApiToken[]>([]);
   const [othersTokens, setOthersTokens] = React.useState<ApiToken[]>([]);
@@ -98,6 +98,9 @@ export function TokensProvider({ children }: { children: React.ReactNode }) {
         method: "GET",
         cache: "no-store",
       });
+
+      if (res.status === 401 || res.status === 403) return;
+
       const body = await readJson<ListResp>(res);
       if (!res.ok || body?.success === false)
         throw new Error(extractApiMessage(body) ?? "Falha ao carregar tokens");
@@ -123,6 +126,9 @@ export function TokensProvider({ children }: { children: React.ReactNode }) {
         cache: "no-store",
         credentials: "include",
       });
+
+      if (res.status === 401 || res.status === 403) return
+
       const body = await readJson<ListResp>(res);
       if (!res.ok || body?.success === false)
         throw new Error(extractApiMessage(body) ?? "Falha ao carregar tokens");
@@ -148,13 +154,13 @@ export function TokensProvider({ children }: { children: React.ReactNode }) {
     if (role) { // Garante que só carrega após o role ser definido (ou seja, autenticado)
         load();
     }
-  }, [role, load]);
+  }, [token, role, load]);
 
   React.useEffect(() => {
     if (role === "ADMIN") {
       loadAll();
     }
-  }, [role, loadAll]);
+  }, [token, role, loadAll]);
 
   async function revokeToken(tokenId: string) {
     try {

@@ -6,11 +6,11 @@ import { Toaster } from "@/components/ui/sonner";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <TokensProvider>
-      <AuthProvider>
+    <AuthProvider>
+      <TokensProvider>
         {children}
         <Toaster position="top-right" richColors closeButton />
-      </AuthProvider>
-    </TokensProvider>
+      </TokensProvider>
+    </AuthProvider>
   );
 }
