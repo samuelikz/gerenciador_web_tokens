@@ -8,7 +8,6 @@ export const metadata: Metadata = {
 }
 
 export default async function LoginPage() {
-  // Se já estiver logado, nunca mostra o login:
   const cookieStore = await cookies();
   const token = cookieStore.get(process.env.AUTH_COOKIE_NAME || "accessToken")?.value;
   if (token) redirect("/dashboard");
