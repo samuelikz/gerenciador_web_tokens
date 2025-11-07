@@ -8,19 +8,31 @@ import type { UserData } from "@/types/user";
 
 type Role = "ADMIN" | "USER";
 type MiniUser = { name?: string; email?: string; role?: string };
-type MeResponse = | { success: true; data: UserData } | { success: false; message: string };
+
+type MeResponse =
+  | { success: true; data: UserData }
+  | { success: false; message: string };
 
 interface SiteHeaderProps extends React.ComponentProps<"header"> {
   user?: MiniUser | null;
 }
 
-function RoleBadge({ role }: { role?: string }) {
+function RoleBadge({ role }: { role?: Role | string }) {
   if (!role) return null;
   return (
     <span className="rounded-full border px-2 py-0.5 text-[10px] font-medium leading-none text-muted-foreground">
       {role}
     </span>
   );
+}
+
+// util para parse seguro de JSON
+async function readJson<T>(res: Response): Promise<T | null> {
+  try {
+    return (await res.json()) as T;
+  } catch {
+    return null;
+  }
 }
 
 export function SiteHeader({ user: userProp, className, ...props }: SiteHeaderProps) {
@@ -42,7 +54,7 @@ export function SiteHeader({ user: userProp, className, ...props }: SiteHeaderPr
         setLoading(false);
         return;
       }
-      
+
       try {
         setLoading(true);
         
@@ -50,26 +62,25 @@ export function SiteHeader({ user: userProp, className, ...props }: SiteHeaderPr
           credentials: "include",
           cache: "no-store",
         });
-        
-        const json = (await res.json().catch(() => ({}))) as MeResponse;
+
+        const json = (await readJson<MeResponse>(res)) ?? { success: false, message: "" };
 
         if (!mounted) return;
 
-        if (json && "success" in json && json.success) {
+        if ("success" in json && json.success) {
           const d = json.data;
-          
           setMe({
             id: d.id,
             email: d.email,
-            role: d.role as Role, 
+            role: d.role,
             name: d.name ?? (d.email ? d.email.split("@")[0] : undefined),
             avatar: d.avatar ?? null,
           });
-
         } else {
           setMe(null);
+          setMe(null);
         }
-      } catch (e) {
+      } catch {
         if (!mounted) return;
         setMe(null);
       } finally {

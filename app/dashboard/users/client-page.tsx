@@ -92,7 +92,7 @@ export default function UsersClientPage() {
       (u) =>
         (u.name ?? "").toLowerCase().includes(q) ||
         (u.email ?? "").toLowerCase().includes(q) ||
-        (u.role ?? "").toLowerCase().includes(q)
+        (u.role as string).toLowerCase().includes(q)
     );
   }, [users, query]);
 

@@ -53,6 +53,7 @@ export default function PerfilPage() {
               </div>
             </div>
 
+
             <Dialog open={openEdit} onOpenChange={setOpenEdit}>
               <DialogTrigger asChild>
                 <Button variant="outline" size="icon">
@@ -75,6 +76,7 @@ export default function PerfilPage() {
           </div>
         </CardHeader>
 
+
         <CardContent className="grid gap-4">
           <div className="flex items-center gap-3">
             <IconMail className="size-5 text-primary" />
@@ -92,3 +94,4 @@ export default function PerfilPage() {
     </div>
   );
 }
+

@@ -56,7 +56,6 @@ export default function TokensPage() {
   const [openResult, setOpenResult] = React.useState(false);
   const [apiKey, setApiKey] = React.useState("");
 
-  // Define a structure for the token result payload based on its usage
   type CreatedTokenPayload = {
     apiKey: string;
     token: {
@@ -84,7 +83,7 @@ export default function TokensPage() {
     const result = await createToken(payload);
     if (result) {
       setApiKey(result.apiKey);
-      setCreatedPayload(result as CreatedTokenPayload); // Garante a tipagem aqui
+      setCreatedPayload(result as CreatedTokenPayload);
       setOpenCreate(false);
       setOpenResult(true);
     }

@@ -25,10 +25,10 @@ type ApiToken = {
   id: string;
   userId: string;
   createdByUserId: string;
-  scope: string;
+  scope: Scope;
   isActive: boolean;
   expiresAt: string | null;
-  createdAt: string;
+  createdAt: string | null;
   revokedAt: string | null;
   description: string | null;
   createdByName: string | null;
@@ -129,9 +129,9 @@ export default function TokenList({
                               variant="ghost"
                               size="icon"
                               className="size-8"
+                              aria-label="Abrir ações do token"
                             >
                               <IconDotsVertical className="size-4" />
-                              <span className="sr-only">Ações</span>
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
@@ -170,3 +170,4 @@ export default function TokenList({
     </Card>
   );
 }
+
