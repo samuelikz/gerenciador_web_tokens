@@ -23,14 +23,8 @@ export async function apiFetch(path: string, init: RequestInit = {}) {
     cache: "no-store",
   });
 
-  // Lê como texto e tenta fazer parse de JSON de forma segura
-  const raw = await res.text().catch(() => "");
   let data: unknown = null;
-  try {
-    data = raw ? JSON.parse(raw) : null;
-  } catch {
-    data = { raw };
-  }
+  try { data = await res.json(); } catch { data = { raw: await res.text().catch(() => "") }; }
 
   return new Response(JSON.stringify(data), {
     status: res.status,

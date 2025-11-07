@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -9,43 +8,33 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
+import { useAuth } from "@/contexts/auth-context";
+import { useRouter } from "next/navigation";
 
-type LoginResp = { success?: boolean; message?: string };
-
-function getErrorMessage(err: unknown, fallback = "Falha no login"): string {
-  if (err instanceof Error) return err.message;
-  if (typeof err === "string") return err;
-  return fallback;
-}
-
-export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
+export function LoginForm({
+  className,
+  ...props
+}: React.ComponentProps<"div">) {
+  const { login } = useAuth();
   const router = useRouter();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [loading, setLoading] = React.useState(false);
 
-  async function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const body = (await res.json().catch(() => ({}))) as LoginResp;
-      if (!res.ok || body?.success === false) {
-        const msg = body?.message || "Falha no login";
-        toast.error(msg);
-        return;
-      }
-
+      const loggedUser = await login(email, password);
+      console.log("Usuário após login:", loggedUser)
       toast.success("Login efetuado com sucesso!");
       router.replace("/dashboard");
-      router.refresh();
     } catch (err: unknown) {
-      toast.error(getErrorMessage(err));
+      let errorMessage = "Falha no login";
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -73,14 +62,11 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  aria-invalid={false}
                 />
               </div>
 
               <div className="grid gap-3">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Senha</Label>
-                </div>
+                <Label htmlFor="password">Senha</Label>
                 <Input
                   id="password"
                   type="password"
@@ -88,12 +74,11 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  aria-invalid={false}
                 />
               </div>
 
               <Button type="submit" className="mt-3 w-full" disabled={loading}>
-                {loading ? "Entrando..." : "Entrar"}
+                {loading ? "Aguarde..." : "Entrar"}
               </Button>
             </div>
           </form>
@@ -101,7 +86,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
           <div className="relative bg-muted">
             <Image
               src="/logo.png"
-              alt="Fill"
+              alt="Logo"
               fill
               priority
               className="object-fill"
@@ -111,7 +96,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
         </CardContent>
       </Card>
 
-      <div className="text-balance text-center text-xs text-muted-foreground *:[a]:underline *:[a]:underline-offset-4 *:[a]:hover:text-primary">
+      <div className="text-balance text-center text-xs text-muted-foreground">
         <p className="text-center text-sm text-muted-foreground">
           Não conseguiu acessar sua conta?{" "}
           <a href="mailto:suportesiga@perpart.com.br" className="font-medium">

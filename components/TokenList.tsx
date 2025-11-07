@@ -1,5 +1,3 @@
-// components/TokenList.tsx
-
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
@@ -7,7 +5,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import {
@@ -19,9 +16,10 @@ import {
   TableRow,
 } from "./ui/table";
 import { IconDotsVertical } from "@tabler/icons-react";
+// Assumindo que fmtDate vem deste caminho
+import { fmtDate } from "@/lib/utils";
 
-// --- Tipos ---
-type Scope = "READ" | "WRITE" | "READ_WRITE" | string;
+// A função de formato de data local foi removida para usar a versão importada.
 
 type ApiToken = {
   id: string;
@@ -40,102 +38,90 @@ type ApiToken = {
 };
 
 type TokenListProps = {
-  tokens: ApiToken[]; // lista já filtrada/ordenada
+  tokens: ApiToken[]; // A lista de tokens
   loading: boolean;
-  revokeToken: (tokenId: string) => Promise<void>;
+  revokeToken: (tokenId: string) => Promise<void>; // Função de ação para revogação
 };
 
-// --- Utils ---
+// Lógica para determinar se o token está ativo
 const isAtivo = (t: ApiToken) => !!(t.isActive && !t.revokedAt);
 
-type WithToString = { toString(): string };
-function fmtDate(d?: unknown) {
-  if (d == null) return "—";
-
-  let dt: Date | null = null;
-  if (typeof d === "string" || typeof d === "number") {
-    dt = new Date(d);
-  } else if (d instanceof Date) {
-    dt = d;
-  } else if ((d as WithToString) && typeof (d as WithToString).toString === "function") {
-    dt = new Date((d as WithToString).toString());
-  } else {
-    return "—";
-  }
-
-  if (!dt || Number.isNaN(dt.getTime())) return "—";
-  try {
-    return new Intl.DateTimeFormat("pt-BR", {
-      dateStyle: "short",
-      timeStyle: "short",
-    }).format(dt);
-  } catch {
-    return "—";
-  }
-}
-
-export default function TokenList({ tokens, loading, revokeToken }: TokenListProps) {
+export default function TokenList({
+  tokens,
+  loading,
+  revokeToken,
+}: TokenListProps) {
   return (
-    <Card>
+    <Card className="shadow-lg">
       <CardHeader className="pb-2">
-        <CardTitle className="text-base">Lista</CardTitle>
+        <CardTitle className="text-xl font-bold text-gray-800">Tokens de Acesso</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="overflow-hidden rounded-md border">
+        <div className="overflow-x-auto rounded-lg border">
           <Table>
-            <TableHeader>
+            <TableHeader className="bg-gray-50">
               <TableRow>
-                <TableHead>Descrição</TableHead>
-                <TableHead className="hidden md:table-cell">Dono</TableHead>
-                <TableHead className="hidden xl:table-cell">E-mail do dono</TableHead>
-                <TableHead className="hidden md:table-cell">Criado em</TableHead>
-                <TableHead className="hidden md:table-cell">Expira em</TableHead>
+                <TableHead className="min-w-[150px]">Descrição</TableHead>
+                <TableHead className="hidden sm:table-cell min-w-[150px]">Dono</TableHead>
+                <TableHead className="hidden lg:table-cell min-w-[200px]">
+                  E-mail do Dono
+                </TableHead>
+                <TableHead className="hidden md:table-cell min-w-[120px]">
+                  Criado em
+                </TableHead>
+                <TableHead className="hidden lg:table-cell min-w-[120px]">
+                  Expira em
+                </TableHead>
                 <TableHead className="hidden sm:table-cell">Escopo</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="w-12" />
+                <TableHead className="text-center min-w-[80px]">Status</TableHead>
+                <TableHead className="w-12"></TableHead>
               </TableRow>
             </TableHeader>
 
             <TableBody>
-              {tokens.length ? (
+              {loading ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={8}
+                    className="h-24 text-center text-blue-500 font-semibold"
+                  >
+                    Carregando tokens...
+                  </TableCell>
+                </TableRow>
+              ) : tokens.length > 0 ? (
                 tokens.map((t) => {
                   const ativo = isAtivo(t);
-                  return (
-                    <TableRow key={t.id}>
-                      <TableCell className="font-medium">
-                        {t.description || "—"}
-                      </TableCell>
+                  const statusVariant = ativo ? "default" : "secondary";
+                  const expirationText = fmtDate(t.expiresAt);
+                  const isExpired = t.expiresAt && new Date(t.expiresAt) < new Date() && ativo;
 
-                      <TableCell className="hidden md:table-cell">
+                  return (
+                    <TableRow key={t.id} className={!ativo ? "opacity-60 bg-red-50/50" : ""}>
+                      <TableCell className="font-medium text-gray-700">
+                        {t.description || "Sem Descrição"}
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
                         {t.ownerName || t.ownerEmail || "—"}
                       </TableCell>
-
-                      <TableCell className="hidden xl:table-cell">
+                      <TableCell className="hidden lg:table-cell text-sm text-gray-500">
                         {t.ownerEmail || "—"}
                       </TableCell>
-
-                      <TableCell className="hidden md:table-cell">
+                      <TableCell className="hidden md:table-cell text-sm">
                         {fmtDate(t.createdAt)}
                       </TableCell>
-
-                      <TableCell className="hidden md:table-cell">
-                        {fmtDate(t.expiresAt)}
+                      <TableCell className={`hidden lg:table-cell text-sm ${isExpired ? 'text-red-500 font-semibold' : ''}`}>
+                        {isExpired ? `EXPIRADO (${expirationText})` : expirationText}
                       </TableCell>
-
                       <TableCell className="hidden sm:table-cell">
-                        <Badge variant="outline" className="px-2">
-                          {t.scope || "—"}
+                        <Badge variant="outline" className="px-2 border-indigo-300 text-indigo-600">
+                          {t.scope || "geral"}
                         </Badge>
                       </TableCell>
-
-                      <TableCell>
-                        {ativo ? (
-                          <Badge variant="outline" className="px-2">Ativo</Badge>
-                        ) : (
-                          <Badge variant="secondary" className="px-2">Revogado</Badge>
-                        )}
+                      <TableCell className="text-center">
+                        <Badge variant={statusVariant} className={`px-2 ${ativo ? 'bg-green-100 text-green-700 hover:bg-green-100' : 'bg-gray-200 text-gray-600 hover:bg-gray-200'}`}>
+                          {ativo ? "Ativo" : "Revogado"}
+                        </Badge>
                       </TableCell>
-
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -150,17 +136,16 @@ export default function TokenList({ tokens, loading, revokeToken }: TokenListPro
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             {ativo ? (
-                              <>
-                                <DropdownMenuItem
-                                  onClick={() => revokeToken(t.id)}
-                                  className="text-destructive cursor-pointer"
-                                >
-                                  Revogar
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                              </>
+                              <DropdownMenuItem
+                                onClick={() => revokeToken(t.id)}
+                                className="text-red-600 font-medium cursor-pointer focus:bg-red-50"
+                              >
+                                Revogar Token
+                              </DropdownMenuItem>
                             ) : (
-                              <DropdownMenuItem disabled>Revogado</DropdownMenuItem>
+                              <DropdownMenuItem disabled>
+                                Ação Indisponível
+                              </DropdownMenuItem>
                             )}
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -170,8 +155,11 @@ export default function TokenList({ tokens, loading, revokeToken }: TokenListPro
                 })
               ) : (
                 <TableRow>
-                  <TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
-                    {loading ? "Carregando…" : "Nada encontrado."}
+                  <TableCell
+                    colSpan={8}
+                    className="h-24 text-center text-muted-foreground"
+                  >
+                    Nenhum token encontrado.
                   </TableCell>
                 </TableRow>
               )}
@@ -182,3 +170,4 @@ export default function TokenList({ tokens, loading, revokeToken }: TokenListPro
     </Card>
   );
 }
+

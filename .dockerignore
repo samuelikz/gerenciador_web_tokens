@@ -1,0 +1,13 @@
+# Dependências locais
+node_modules
+
+# Arquivos de build do Next.js
+.next
+
+# Arquivos do Docker
+Dockerfile
+.dockerignore
+
+# Outros
+.git
+README.md

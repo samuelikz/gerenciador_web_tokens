@@ -4,18 +4,9 @@ import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import type { UserData } from "@/types/user";
 
-// --- TIPOS ---
 type Role = "ADMIN" | "USER";
-
-type UserData = {
-  id: string | number;
-  email?: string;
-  role?: Role;
-  name?: string;
-  avatar?: string | null;
-};
-
 type MiniUser = { name?: string; email?: string; role?: string };
 
 type MeResponse =
@@ -52,26 +43,22 @@ export function SiteHeader({ user: userProp, className, ...props }: SiteHeaderPr
     let mounted = true;
 
     (async () => {
-      // Se veio user pelas props, usa e evita o fetch
-      if (userProp?.name) {
-        const roleFromProps = (userProp.role as Role | undefined) ?? undefined;
-        if (mounted) {
-          setMe({
-            id: "from-props",
-            email: userProp.email ?? "",
-            name: userProp.name,
-            role: roleFromProps,
-            avatar: null,
-          });
-          setLoading(false);
-        }
+      if (userProp && userProp.name) { 
+        setMe({
+          id: "from-props",
+          email: userProp.email ?? "",
+          name: userProp.name,
+          role: userProp.role as Role,
+          avatar: null,
+        } as UserData);
+        setLoading(false);
         return;
       }
 
       try {
         setLoading(true);
-
-        const res = await fetch(`/api/users/me/profile`, {
+        
+        const res = await fetch(`/api/users/me/profile`, { 
           credentials: "include",
           cache: "no-store",
         });
@@ -91,6 +78,7 @@ export function SiteHeader({ user: userProp, className, ...props }: SiteHeaderPr
           });
         } else {
           setMe(null);
+          setMe(null);
         }
       } catch {
         if (!mounted) return;
@@ -103,15 +91,11 @@ export function SiteHeader({ user: userProp, className, ...props }: SiteHeaderPr
     return () => {
       mounted = false;
     };
-  }, [userProp]);
+  }, [userProp]); 
 
-  const u = me;
-
-  const displayName = React.useMemo(() => {
-    if (u?.name) return u.name;
-    if (u?.email) return u.email.split("@")[0] || "Usuário";
-    return "Usuário";
-  }, [u?.name, u?.email]);
+  const u = me; 
+  
+  const displayName = u?.name ?? (u?.email ? u.email.split("@")[0] : "Usuário");
 
   return (
     <header

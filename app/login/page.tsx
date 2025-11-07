@@ -1,9 +1,13 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { LoginForm } from "@/components/ui/login-form";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: 'API siga', 
+}
 
 export default async function LoginPage() {
-  // Se já estiver logado, nunca mostra o login:
   const cookieStore = await cookies();
   const token = cookieStore.get(process.env.AUTH_COOKIE_NAME || "accessToken")?.value;
   if (token) redirect("/dashboard");

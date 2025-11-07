@@ -3,7 +3,11 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { IconDotsVertical, IconLogout, IconUserCircle } from "@tabler/icons-react";
+import {
+  IconDotsVertical,
+  IconLogout,
+  IconUserCircle,
+} from "@tabler/icons-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {

@@ -26,6 +26,8 @@ import {
   IconFileText,
 } from "@tabler/icons-react";
 
+import type { UserData } from "@/types/user";
+
 // --- TIPOS DE DADOS ---
 type Role = "ADMIN" | "USER";
 
@@ -36,14 +38,6 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 
 type NavItem = { title: string; url: string; icon: Icon; adminOnly?: true };
 type DocItem = { name: string; url: string; icon: Icon };
-
-type UserData = {
-  id: string | number;
-  email?: string;
-  role?: Role;
-  name?: string;
-  avatar?: string | null;
-};
 
 type MeResponse =
   | { success: true; data: UserData }
@@ -87,8 +81,7 @@ export function AppSidebar({
 
     (async () => {
       try {
-        // Lê via API interna (usa cookie HTTP-Only)
-        const res = await fetch(`/api/users/me/profile`, {
+        const res = await fetch(`/api/users/me/profile`, { 
           credentials: "include",
           cache: "no-store",
         });
@@ -97,7 +90,7 @@ export function AppSidebar({
 
         if (!mounted) return;
 
-        if ("success" in json && json.success) {
+        if (json && "success" in json && json.success) {
           const d = json.data;
           setMe({
             id: d.id,
@@ -107,7 +100,7 @@ export function AppSidebar({
             avatar: d.avatar ?? null,
           });
         } else {
-          setMe(null);
+          setMe(null); 
         }
       } catch {
         if (!mounted) return;
@@ -120,29 +113,22 @@ export function AppSidebar({
     return () => {
       mounted = false;
     };
-  }, []);
+  }, []); 
 
   const isAdminDetected = me?.role === "ADMIN";
   const isAdmin = typeof isAdminProp === "boolean" ? isAdminProp : isAdminDetected;
 
-  const resolvedUser = React.useMemo(
-    () => ({
-      name:
-        userProp?.name ??
-        me?.name ??
-        (me?.email ? me.email.split("@")[0] : undefined) ??
-        "Usuário Desconhecido",
-      email: userProp?.email ?? me?.email ?? "—",
-      avatar: userProp?.avatar ?? me?.avatar ?? "/avatars/shadcn.jpg",
-    }),
-    [userProp?.name, userProp?.email, userProp?.avatar, me?.name, me?.email, me?.avatar]
-  );
+  const resolvedUser = {
+    name:
+      userProp?.name ??
+      me?.name ??
+      (me?.email ? me.email.split("@")[0] : undefined) ??
+      "Usuário Desconhecido", 
+    email: userProp?.email ?? me?.email ?? "—",
+    avatar: userProp?.avatar ?? me?.avatar ?? "/avatars/shadcn.jpg",
+  };
 
-  // Filtra itens adminOnly conforme a permissão
-  const navMain = React.useMemo(
-    () => base.navMain.filter((i) => !i.adminOnly || isAdmin),
-    [isAdmin]
-  );
+  const navMain = base.navMain.filter((i) => !i.adminOnly || isAdmin);
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>
