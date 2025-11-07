@@ -92,7 +92,7 @@ export default function TokensPage() {
 
   function copyApiKey() {
     if (!apiKey) return;
-    navigator.clipboard.writeText(apiKey);
+    void navigator.clipboard.writeText(apiKey);
     toast.success("Chave copiada");
   }
 
@@ -108,6 +108,11 @@ export default function TokensPage() {
     URL.revokeObjectURL(url);
   }
 
+  // Handlers tipados para inputs
+  const onQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => setQuery(e.target.value);
+  const onExpiresChange = (e: React.ChangeEvent<HTMLInputElement>) => setExpiresDate(e.target.value);
+  const onDescChange = (e: React.ChangeEvent<HTMLInputElement>) => setDescription(e.target.value);
+
   return (
     <div className="flex flex-col gap-6 px-4 lg:px-6">
       <div className="flex flex-wrap items-center gap-2">
@@ -119,7 +124,7 @@ export default function TokensPage() {
               className="pl-8 w-64"
               placeholder="Buscar por descrição, dono ou escopo…"
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={onQueryChange}
             />
           </div>
           <Button variant="outline" size="icon" onClick={refreshAll}>
@@ -174,7 +179,7 @@ export default function TokensPage() {
                   <Input
                     placeholder="Ex.: Chave de leitura para integração X"
                     value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    onChange={onDescChange}
                   />
                 </div>
                 <DialogFooter>
