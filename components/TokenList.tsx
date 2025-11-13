@@ -25,7 +25,7 @@ type ApiToken = {
   id: string;
   userId: string;
   createdByUserId: string;
-  scope: Scope;
+  scope: string;
   isActive: boolean;
   expiresAt: string | null;
   createdAt: string | null;
